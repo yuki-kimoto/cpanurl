@@ -1,4 +1,4 @@
-#/usr/bin/env perl
+#!/usr/bin/env perl
 
 package
   App::cpanurl::Object::Simple;
@@ -2623,7 +2623,7 @@ sub get {
   if ($res->{success} && !$ENV{TEST_MODULEVERSION_REQUEST_FAIL}) {
     my $release = App::cpanurl::JSON::PP::decode_json $res->{content};
     $url = $release->{hits}{hits}[0]{fields}{download_url};
-    $error = "$module_dist-$version is unknown" unless defined $url;
+    $error = "$module_dist-$version not found" unless defined $url;
   }
   else {
     $error = "Request to metaCPAN fail($res->{status_line}):$agent:$module_info";
@@ -2649,7 +2649,7 @@ GetOptions(
   'help=s' => \$help,
   'file=s' => \$file,
   'lwp' => \$lwp,
-  'no_lwp' => \$no_lwp
+  'no-lwp' => \$no_lwp
 );
 
 # Help
@@ -2688,7 +2688,9 @@ if (defined $file) {
   open my $fh, '<', $file
     or die "Can't open $file:$!";
   while (my $line = <$fh>) {
-    chomp $line;
+    $line =~ s/^\s+//;
+    $line =~ s/\s+$//;
+    $line =~ s/[\r\n]//;
     next unless $line;
     my ($name, $version) = split /\s+/, $line;
     push @$modules, {name => $name, version => $version};
@@ -2698,6 +2700,7 @@ if (defined $file) {
 else { push @$modules, {name => $mname, version => $mversion} }
 
 my $mu = App::cpanurl::ModuleURL->new;
+warn "$lwp_use\n" if $ENV{CPANURL_DEBUG};
 $mu->lwp($lwp_use);
 
 for my $m (@$modules) {

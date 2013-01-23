@@ -1,3 +1,4 @@
+use 5.008001;
 package App::cpanurl;
 
 our $VERSION = '0.01';
@@ -14,12 +15,11 @@ B<This module is alpha release. Features will be changed without warnings.>
 
 =head1 SYNOPSIS
 
-  # 
+  # http://cpan.metacpan.org/authors/id/S/SR/SRI/Mojolicious-3.82.tar.gz
   cpanurl Mojolicious 3.82
   
-  # 
-  # 
-  # ...
+  # http://cpan.metacpan.org/authors/id/S/SR/SRI/Mojolicious-3.82.tar.gz
+  # http://cpan.metacpan.org/authors/id/K/KI/KIMOTO/DBIx-Custom-0.23.tar.gz
   cpanurl -f module.txt
   
   # module.txt
@@ -32,7 +32,7 @@ B<This module is alpha release. Features will be changed without warnings.>
 
 You can get module URL.
 
-  #
+  # http://cpan.metacpan.org/authors/id/S/SR/SRI/Mojolicious-3.82.tar.gz
   cpanurl Mojolicious 3.82
 
 If you want to get many module urls, you can use C<-f> option and module file.
@@ -43,6 +43,11 @@ Module file is the following format.
 
   Mojolicious 3.82
   DBIx::Custom 0.23
+
+You can get the following output
+
+  http://cpan.metacpan.org/authors/id/S/SR/SRI/Mojolicious-3.82.tar.gz
+  http://cpan.metacpan.org/authors/id/K/KI/KIMOTO/DBIx-Custom-0.23.tar.gz
 
 =head2 Module installation
 
@@ -131,5 +136,3 @@ by the Free Software Foundation; or the Artistic License.
 See http://dev.perl.org/licenses/ for more information.
 
 =cut
-
-
