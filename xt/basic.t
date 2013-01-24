@@ -5,6 +5,18 @@ use Test::More 'no_plan';
   my $out = `script/cpanurl Mojolicious 3.82`;
   is($out, 'http://cpan.metacpan.org/authors/id/S/SR/SRI/Mojolicious-3.82.tar.gz' . "\n");
 }
+{
+  my $out = `script/cpanurl LWP 6.04`;
+  is($out, 'http://cpan.metacpan.org/authors/id/G/GA/GAAS/libwww-perl-6.04.tar.gz' . "\n");
+}
+{
+  my $out = `script/cpanurl Template 2.24`;
+  is($out, 'http://cpan.metacpan.org/authors/id/A/AB/ABW/Template-Toolkit-2.24.tar.gz' . "\n");
+}
+{
+  my $out = `script/cpanurl List::Util 1.27`;
+  is($out, 'http://cpan.metacpan.org/authors/id/P/PE/PEVANS/Scalar-List-Utils-1.27.tar.gz' . "\n");
+}
 
 # Distribution
 {

@@ -2584,13 +2584,22 @@ sub req {
   if ($lwp eq 'use' || $lwp eq 'auto' && eval { require LWP::UserAgent; LWP::UserAgent->VERSION(5.802) })
   {
     require LWP::UserAgent;
+    require HTTP::Request;
     my $ua = LWP::UserAgent->new(
       parse_head => 0,
       env_proxy => 1,
       agent => "App::cpanurl/$VERSION",
       timeout => 30
     );
-    my $r = $method eq 'get' ? $ua->get($url) : $ua->post($url, $body);
+    my $r;
+    if ($method eq 'post') {
+      my $req = HTTP::Request->new('POST', $url);
+      $req->header('Content-Type' => 'application/json');
+      $req->content($body);
+      $r = $ua->request($req);
+    }
+    else { $r = $ua->get($url) }
+    
     $res->{success} = $r->is_success;
     $res->{status_line} = $r->status_line;
     $res->{content} = $r->content;
@@ -2598,7 +2607,13 @@ sub req {
   }
   else {
     my $ua = App::cpanurl::HTTP::Tiny->new;
-    my $r = $method eq 'get' ? $ua->get($url) : $ua->post($url, $body);
+    my $r;
+    if ($method eq 'post') {
+      $r = $ua->post($url,
+        {headers => {'Content-Type' => 'application/json'}, content => $body});
+    }
+    else { $r = $ua->get($url) }
+
     $res->{success} = $r->{success};
     $res->{status_line} = "$r->{status} $r->{reason}";
     $res->{content} = $r->{content};
@@ -2615,7 +2630,6 @@ use strict;
 use warnings;
 sub has { __PACKAGE__->App::cpanurl::Object::Simple::attr(@_) }
 
-has distnames => sub { {} };
 has 'error';
 has lwp => 'auto';
 
@@ -2626,47 +2640,55 @@ sub get {
   my $lwp = $self->lwp;
 
   # Module
-  my $module_dist = $module;
-  $module_dist =~ s/::/-/g;
-  
+  my $release;
+  if ($module =~ /-/) {
+    $release = "$module-$version";
+  }
+
   # Get release
   my $metacpan_api = 'http://api.metacpan.org/v0';
-
-=pod
-  my $release_search = '{"query":{"filtered":{"query":{"match_all":{}},"filter":{"and":[{"term":{"file.module.authorized":true}},{"term":{"file.module.name":"DBIx::Custom"}},{"term":{"file.module.version":"0.23"}}]}}},"fields":["release"]}'
-  my $release_search_escaped = $self->_url_escape($release_search);
-  my $release_search_url = "$metacpan_api/file/
-=cut
-
-  # Get download URL using metaCPAN api
-  my $url;
-  my $search = "release/_search?q=name:$module_dist-$version"
-    . "&fields=download_url,name";
-  my $module_info = "$metacpan_api/$search";
-  
   my $ua = App::cpanurl::UserAgent->new(lwp => $lwp);
-  my $res = $ua->req('get', $module_info);
-  my $agent = $ua->used_class;
-  
-  my $error;
-  if ($res->{success} && !$ENV{TEST_MODULEVERSION_REQUEST_FAIL}) {
-    my $release = App::cpanurl::JSON::PP::decode_json $res->{content};
-    $url = $release->{hits}{hits}[0]{fields}{download_url};
-    $error = "$module_dist-$version not found" unless defined $url;
+  unless ($release) {
+    my $body = qq/{"query":{"filtered":{"query":{"match_all":{}},"filter":{"and":[{"term":{"file.module.authorized":true}},{"term":{"file.module.name":"$module"}},{"term":{"file.module.version":"$version"}}]}}},"fields":["release"]}/;
+    my $url = "$metacpan_api/file/_search";
+    my $res = $ua->req('post', $url, $body);
+    my $agent = $ua->used_class;
+    
+    my $error;
+    if ($res->{success} && !$ENV{TEST_MODULEVERSION_REQUEST_FAIL}) {
+      my $file = App::cpanurl::JSON::PP::decode_json $res->{content};
+      $release = $file->{hits}{hits}[0]{fields}{release};
+      $error = "$module $version not found (Release request)" unless defined $release;
+    }
+    else {
+      $error = "Release request to metaCPAN fail($res->{status_line}):$agent:$url\n$body";
+    }
+    $self->error($error);
+    return if $error;
   }
-  else {
-    $error = "Request to metaCPAN fail($res->{status_line}):$agent:$module_info";
-  }
-  $self->error($error);
   
-  return $url;
-}
-
-sub _url_escape {
-  my ($self, $string, $pattern) = @_;
-  $pattern ||= '^A-Za-z0-9\-._~';
-  $string =~ s/([$pattern])/sprintf('%%%02X',ord($1))/ge;
-  return $string;
+  # Get download URL
+  my $archive_url;
+  {
+    my $search = "release/_search?q=name:$release&fields=download_url,name";
+    my $url = "$metacpan_api/$search";
+    my $res = $ua->req('get', $url);
+    my $agent = $ua->used_class;
+    
+    my $error;
+    if ($res->{success} && !$ENV{TEST_MODULEVERSION_REQUEST_FAIL}) {
+      my $release = App::cpanurl::JSON::PP::decode_json $res->{content};
+      $archive_url = $release->{hits}{hits}[0]{fields}{download_url};
+      $error = "$release not found (Donwload URL request)" unless defined $archive_url;
+    }
+    else {
+      $error = "Request Download URL to metaCPAN fail($res->{status_line}):$agent:$url";
+    }
+    $self->error($error);
+    return if $error;
+  }
+  
+  return $archive_url;
 }
 
 package main;
