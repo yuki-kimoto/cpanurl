@@ -2761,9 +2761,17 @@ warn "$lwp_use\n" if $ENV{CPANURL_DEBUG};
 $mu->lwp($lwp_use);
 
 for my $m (@$modules) {
+  
+  # Get archive URL
   my $name = $m->{name};
   my $version = $m->{version};
-  my $url = $mu->get($name, $version);
+  my $url;
+  if ($name =~ m#^http://# || $name =~ m#https://#) {
+    $url = $name;
+  }
+  else { $url = $mu->get($name, $version) }
+  
+  # Print
   if (defined $url) { print "$url\n" }
   else { warn $mu->error . "\n" }
 }

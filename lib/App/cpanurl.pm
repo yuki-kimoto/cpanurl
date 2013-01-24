@@ -97,6 +97,18 @@ You can use Module name or distribution name.
   cpanurl Cwd 3.40
   cpanurl PathTools-3.40
 
+=head2 When URL is passwd to argument
+
+  cpanurl http://somehost.com/Foo-0.01.tar.gz
+  cpanurl https://somehost.com/Foo-0.01.tar.gz
+
+If URL which start C<http://> or C<https://> is passed to argument,
+That URL is passed through to output.
+  
+  # Output
+  http://somehost.com/Foo-0.01.tar.gz
+  https://somehost.com/Foo-0.01.tar.gz
+
 =head2 HTTP client
 
 L<cpanurl> use two HTTP client as necessary.
