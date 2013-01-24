@@ -2566,6 +2566,49 @@ sub incr_reset {
 }
 
 package
+  App::cpanurl::UserAgent;
+our @ISA = ('App::cpanurl::Object::Simple');
+use strict;
+use warnings;
+sub has { __PACKAGE__->App::cpanurl::Object::Simple::attr(@_) }
+
+has 'lwp';
+has 'used_class';
+
+sub get {
+  my ($self, $url) = @_;
+  
+  my $lwp = $self->lwp;
+  
+  my $res;
+  if ($lwp eq 'use' || $lwp eq 'auto' && eval { require LWP::UserAgent; LWP::UserAgent->VERSION(5.802) })
+  {
+    require LWP::UserAgent;
+    my $ua = LWP::UserAgent->new(
+      parse_head => 0,
+      env_proxy => 1,
+      agent => "App::cpanurl/$VERSION",
+      timeout => 30
+    );
+    my $r = $ua->get($url);
+    $res->{success} = $r->is_success;
+    $res->{status_line} = $r->status_line;
+    $res->{content} = $r->content;
+    $self->used_class('LWP::UserAgent');
+  }
+  else {
+    my $ua = App::cpanurl::HTTP::Tiny->new;
+    my $r = $ua->get($url);
+    $res->{success} = $r->{success};
+    $res->{status_line} = "$r->{status} $r->{reason}";
+    $res->{content} = $r->{content};
+    $self->used_class('HTTP::Tiny');
+  }
+  
+  return $res;
+}
+
+package
   App::cpanurl::ModuleURL;
 our @ISA = ('App::cpanurl::Object::Simple');
 use strict;
@@ -2592,32 +2635,10 @@ sub get {
   my $search = "release/_search?q=name:$module_dist-$version"
     . "&fields=download_url,name";
   my $module_info = "$metacpan_api/$search";
-  my $res = {};
-  my $agent;
-  if ($lwp eq 'use' || $lwp eq 'auto' && eval { require LWP::UserAgent; LWP::UserAgent->VERSION(5.802) })
-  {
-    require LWP::UserAgent;
-    $agent = 'LWP::UserAgent';
-    my $ua = LWP::UserAgent->new(
-      parse_head => 0,
-      env_proxy => 1,
-      agent => "App::cpanurl/$VERSION",
-      timeout => 30
-    );
-    my $r = $ua->get($module_info);
-    $agent = 'LWP::UserAgent';
-    $res->{success} = $r->is_success;
-    $res->{status_line} = $r->status_line;
-    $res->{content} = $r->content;
-  }
-  else {
-    $agent = 'HTTP::Tiny';
-    my $ua = App::cpanurl::HTTP::Tiny->new;
-    my $r = $ua->get($module_info);
-    $res->{success} = $r->{success};
-    $res->{status_line} = "$r->{status} $r->{reason}";
-    $res->{content} = $r->{content};
-  }
+  
+  my $ua = App::cpanurl::UserAgent->new(lwp => $lwp);
+  my $res = $ua->get($module_info);
+  my $agent = $ua->used_class;
   
   my $error;
   if ($res->{success} && !$ENV{TEST_MODULEVERSION_REQUEST_FAIL}) {
@@ -2633,6 +2654,12 @@ sub get {
   return $url;
 }
 
+sub _url_escape {
+  my ($self, $string, $pattern) = @_;
+  $pattern ||= '^A-Za-z0-9\-._~';
+  $string =~ s/([$pattern])/sprintf('%%%02X',ord($1))/ge;
+  return $string;
+}
 
 package main;
 use strict;

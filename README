@@ -2,11 +2,17 @@ cpanurl
 
 INSTALLATION
 
-  cpan App-cpanurl
+  curl -kL https://raw.github.com/yuki-kimoto/cpanurl/master/script/cpanurl > cpanurl
+  chmod +x cpanurl
 
 or
+  cpan App-cpanurl
+  
+Examples:
 
-  curl -L 
+  cpanurl Mojolicious 3.82
+  
+  You can get output http://cpan.metacpan.org/authors/id/S/SR/SRI/Mojolicious-3.82.tar.gz
 
 LICENSE AND COPYRIGHT
 
@@ -17,4 +23,3 @@ under the terms of either: the GNU General Public License as published
 by the Free Software Foundation; or the Artistic License.
 
 See http://dev.perl.org/licenses/ for more information.
-
