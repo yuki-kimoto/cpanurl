@@ -2639,11 +2639,9 @@ sub get {
   $opts ||= {};
   my $lwp = $self->lwp;
 
-  # Module
+  # Release
   my $release;
-  if ($module =~ /-/) {
-    $release = "$module-$version";
-  }
+  $release = $module unless defined $version;
 
   # Get release
   my $metacpan_api = 'http://api.metacpan.org/v0';
@@ -2712,6 +2710,7 @@ GetOptions(
 # Help
 my $help_text = <<'EOS';
 Usage: cpanm [options] Module Version
+       cpanm [options] Distribution-Version
 
 Options:
 
@@ -2722,8 +2721,9 @@ Options:
 
 Examples:
 
-  cpanurl Mojolicious 3.82
-  cpanurl -f module.txt
+  cpanurl Mojolicious 3.82 # Module name and version
+  cpanurl libwww-perl-6.04 # Distribution name and version
+  cpanurl -f module.txt    # From file
 
 EOS
 die "$help_text\n" if $help || !$args_count;

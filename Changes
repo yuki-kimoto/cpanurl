@@ -1,4 +1,8 @@
-0.02
-  (alpha release)resolve module name to distribution name
+0.03 (alpha release)
+  added comamnd line format(capnurl Distribution-Version)
+  removed ":dist" suffix
+  removed auto detecttion of distribution name when it contain "-"
+0.02 (alpha release)
+  resolve module name to distribution name
 0.01
   First alpha release

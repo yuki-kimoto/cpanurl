@@ -1,13 +1,13 @@
 use 5.008001;
 package App::cpanurl;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 1;
 
 =head1 NAME
 
-App::cpanurl - Get module distribution URL from name and version
+App::cpanurl - Get distribution URL from module name and version
 
 =head1 CAUTION
 
@@ -19,7 +19,8 @@ B<This module is alpha release. Features will be changed without warnings.>
   cpanurl Mojolicious 3.82
 
   # http://cpan.metacpan.org/authors/id/G/GA/GAAS/libwww-perl-6.04.tar.gz
-  cpanurl LWP 3.82
+  cpanurl LWP 6.04
+  cpanurl libwww-perl-6.04
 
   # http://cpan.metacpan.org/authors/id/S/SR/SRI/Mojolicious-3.82.tar.gz
   # http://cpan.metacpan.org/authors/id/K/KI/KIMOTO/DBIx-Custom-0.23.tar.gz
@@ -81,14 +82,20 @@ C<cpanurl> is automatically resolve this relation.
   List::Util          Scalar-List-Utils
   Scalar::Util        Scalar-List-Utils
   Template            Template-Toolkit
+
+If you want to use distribution name, pass one argument.
   
-Module name and distribution name is both OK.
+  cpanurl libwww-perl-6.04
+
+You can use Module name or distribution name.
   
   # both OK
   cpanurl LWP 6.04
-  cpanurl libwww-perl 6.04
-
-if name contain C<->, that is parsed as distribution name.
+  cpanurl libwww-perl-6.04
+  
+  # both OK
+  cpanurl Cwd 3.40
+  cpanurl PathTools-3.40
 
 =head2 HTTP client
 

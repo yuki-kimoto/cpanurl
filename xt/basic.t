@@ -17,10 +17,14 @@ use Test::More 'no_plan';
   my $out = `script/cpanurl List::Util 1.27`;
   is($out, 'http://cpan.metacpan.org/authors/id/P/PE/PEVANS/Scalar-List-Utils-1.27.tar.gz' . "\n");
 }
+{
+  my $out = `script/cpanurl PathTools-3.40`;
+  is($out, 'http://cpan.metacpan.org/authors/id/S/SM/SMUELLER/PathTools-3.40.tar.gz' . "\n");
+}
 
 # Distribution
 {
-  my $out = `script/cpanurl libwww-perl 6.04`;
+  my $out = `script/cpanurl libwww-perl-6.04`;
   is($out, 'http://cpan.metacpan.org/authors/id/G/GA/GAAS/libwww-perl-6.04.tar.gz' . "\n");
 }
 
