@@ -1,7 +1,7 @@
 use 5.008001;
 package App::cpanurl;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 1;
 
@@ -12,6 +12,16 @@ App::cpanurl - Get distribution URL from module name and version
 =head1 CAUTION
 
 B<This module is alpha release. Features will be changed without warnings.>
+
+(2013/3/20)
+
+Sorry. This module is DEPRECATED because L<cpanm> and L<cpanfile> is much better.
+
+If you want to install moudles, use L<cpanm> and L<cpanfile> instead.
+
+See L<https://github.com/kraih/mojo/wiki/Installation-of-cpan-modules-by-cpanm-and-cpanfile>
+
+This module will be removed from CPAN on 2014/3/1
 
 =head1 SYNOPSIS
 
