@@ -1,7 +1,7 @@
 0.04 (alpha release)
   - Sorry. This module is DEPRECATED because L<cpanm> and L<cpanfile> is much better.
     If you want to install moudles, use L<cpanm> and L<cpanfile> instead.
-    See L<https://github.com/kraih/mojo/wiki/Installation-of-cpan-modules-by-cpanm-and-cpanfile>
+    See https://github.com/kraih/mojo/wiki/Installation-of-cpan-modules-by-cpanm-and-cpanfile
     This module will be removed from CPAN on 2014/3/1
 
 0.03 (alpha release)
